@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passer à la caisse</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      padding-top: 70px;
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      font-family: Arial, sans-serif;
+    }
+
+    .navbar-dark.bg-primary { background-color: var(--bs-primary) !important; }
+
+    .checkout-card {
+      background: var(--bs-card-bg);
+      border-radius: .5rem;
+      box-shadow: var(--bs-card-box-shadow);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .checkout-card h2 {
+      color: var(--bs-primary);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-summary {
+      background: var(--bs-card-bg);
+      border-radius: .5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--bs-card-box-shadow);
+    }
+
+    .product-summary img {
+      max-width: 80px;
+      border-radius: .5rem;
+    }
+
+    .product-summary h5 { margin: 0; color: var(--bs-primary); }
+    .product-summary .price { color: var(--bs-success); font-weight: bold; }
+
+    .subtotal {
+      text-align: right;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .btn-modern, .btn-return {
+      border-radius: 30px;
+      padding: .75rem 1.5rem;
+      transition: background .3s;
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-weight: 500;
+    }
+
+    .btn-modern {
+      background: var(--bs-primary);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-return {
+      background: var(--bs-secondary);
+      color: #fff;
+      border: none;
+    }
+
+
+
+.modal-content {
+  background-color: #fff !important;
+  color: #000;
+  border-radius: .5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+
+
+
+    .modal-title {
+      color: var(--bs-primary);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="{{ url_for('static', filename='images/logo.gif') }}" height="40" alt="Logo">
+    </a>
+    <button class="btn btn-outline-light me-3" id="theme-toggle">
+      <i class="fas fa-moon"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="checkout-card">
+    <h2>Récapitulatif de votre commande</h2>
+
+    {% for prod in products %}
+      <div class="row product-summary align-items-center">
+        <div class="col-auto">
+          <img src="{{ url_for('static', filename='uploads/' + prod[3]) }}" alt="{{ prod[1] }}">
+        </div>
+        <div class="col">
+          <h5>{{ prod[1] }}</h5>
+        </div>
+        <div class="col-auto price">${{ prod[2] }}</div>
+      </div>
+    {% endfor %}
+
+    <p class="subtotal">Total à payer : ${{ totalPrice }}</p>
+
+    <div class="d-flex justify-content-between mt-3">
+      <a href="{{ url_for('cart') }}" class="btn-return">
+        <i class="fas fa-arrow-left me-1"></i>Retour au panier
+      </a>
+
+      <button class="btn-modern" data-bs-toggle="modal" data-bs-target="#paypalModal">
+        <i class="fas fa-credit-card"></i> Payer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal contenant le bouton PayPal -->
+<div class="modal fade" id="paypalModal" tabindex="-1" aria-labelledby="paypalModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paypalModalLabel">Paiement sécurisé</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <p>Veuillez compléter votre paiement avec PayPal :</p>
+        <div id="paypal-button-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de succès -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="successModalLabel">Paiement réussi</h5>
+      </div>
+      <div class="modal-body" id="successMessage">
+        Merci pour votre achat ! Votre paiement a été confirmé.<br>
+        Votre commande sera livrée le <span id="deliveryDate"></span>.
+      </div>
+      <div class="modal-footer justify-content-center border-0">
+        <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=ATJlhBRHWRwBbx-uUEAqJL7J_o3QrR-ZS12aFFX-DH_hk5s84YTiC0ts7wH8s2NE06yTUJu9Z-lsn2mE&currency=USD&intent=capture&commit=true"></script>
+
+<script>
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-bs-theme', next);
+    document.getElementById('theme-toggle').innerHTML =
+      next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  });
+
+  function getFormattedDate(offsetDays) {
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+    return date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  paypal.Buttons({
+    style: { shape: 'pill', color: 'blue', layout: 'vertical', label: 'paypal' },
+    createOrder: (data, actions) => {
+      return actions.order.create({
+        purchase_units: [{ amount: { value: '{{ totalPrice }}' } }]
+      });
+    },
+    onApprove: (data, actions) => {
+      return actions.order.capture().then(details => {
+        fetch("{{ url_for('checkout') }}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paypalOrderID: data.orderID })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            document.getElementById('deliveryDate').textContent = getFormattedDate(4);
+            let modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+            let closePaypalModal = bootstrap.Modal.getInstance(document.getElementById('paypalModal'));
+            if (closePaypalModal) closePaypalModal.hide();
+          }
+        });
+      });
+    },
+    onError: err => {
+      console.error(err);
+      alert("Erreur de paiement.");
+    }
+  }).render('#paypal-button-container');
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

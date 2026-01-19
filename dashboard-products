@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Produits</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; }
+        h1 { text-align: center; }
+        .products { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .product-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            width: 250px;
+            text-align: center;
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .product-name { font-weight: bold; margin: 10px 0; }
+        .product-price { color: #2e8b57; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Produits</h1>
+    <div class="products" id="products"></div>
+
+    <script>
+    fetch('http://localhost:5000/api/products')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('products');
+        container.innerHTML = '';
+        data.forEach(product => {
+          container.innerHTML += `
+            <div class="product-card" id="product-${product.productId}">
+              <img src="/static/uploads/${product.image || 'default.png'}" alt="${product.name}">
+              <form style="margin-bottom:8px;" onsubmit="uploadImage(event, ${product.productId})">
+                <input type="file" name="image" accept="image/*" required>
+                <button type="submit" style="background:#2980b9;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Uploader</button>
+              </form>
+              <div class="product-name">${product.name}</div>
+              <div class="product-price">${product.price} DH</div>
+              <div>${product.description || ''}</div>
+              <div>Stock: ${product.stock}</div>
+            </div>
+          `;
+        });
+        if(container.innerHTML === '') {
+          container.innerHTML = '<p>Aucun produit à afficher.</p>';
+        }
+      })
+      .catch(function() {
+        document.getElementById('products').innerHTML = '<p>Erreur de chargement des produits.</p>';
+      });
+
+    window.uploadImage = function(event, productId) {
+      event.preventDefault();
+      const form = event.target;
+      const fileInput = form.querySelector('input[type=file]');
+      const file = fileInput.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('image', file);
+      fetch(`http://localhost:5000/api/uploadProductImage/${productId}`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(function(data) {
+        if(data.success) {
+          alert('Image enregistrée !');
+          form.reset();
+          // Optionally update image src
+          document.querySelector(`#product-${productId} img`).src = `/static/uploads/${data.filename}`;
+        } else {
+          alert('Erreur : ' + (data.error || 'upload'));
+        }
+      })
+      .catch(function() { alert('Erreur lors de l\'upload.'); });
+    }
+    </script>
+</body>
+</html>

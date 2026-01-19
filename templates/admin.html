@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tableau de bord Admin</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      padding-top: 80px;
+      background: #f8f9fa;
+    }
+    .navbar {
+      background: #003366;
+    }
+    .tab-pane {
+      padding-top: 1.5rem;
+    }
+    .vendor-docs img {
+      max-height: 80px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('root') }}">Admin</a>
+      <span class="navbar-text text-white ms-auto">
+        <i class="fas fa-user-circle"></i> {{ firstName }}
+      </span>
+      <a class="btn btn-light ms-3" href="{{ url_for('logout') }}">Déconnexion</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link active"
+          id="users-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#users"
+          type="button"
+          role="tab"
+        >
+          Utilisateurs
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="sellers-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#sellers"
+          type="button"
+          role="tab"
+        >
+          Vendeurs
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="categories-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#categories"
+          type="button"
+          role="tab"
+        >
+          Catégories
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="users" role="tabpanel">
+        <h4 class="mt-3">Tous les acheteurs</h4>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>{{ u[0] }}</td>
+              <td>{{ u[4] }} {{ u[5] }}</td>
+              <td>{{ u[3] }}</td>
+              <td>
+                <button
+                  class="btn btn-sm btn-danger btn-delete"
+                  data-href="{{ url_for('delete_user', userId=u[0]) }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmModal"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center">Aucun acheteur.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-pane fade" id="sellers" role="tabpanel">
+        <h4 class="mt-3">Tous les vendeurs</h4>
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in sellers %}
+            <tr>
+              <td>{{ s[0] }}</td>
+              <td>{{ s[4] }} {{ s[5] }}</td>
+              <td>{{ s[3] }}</td>
+              <td>
+                {% if s[15] == 0 %}
+              
+
+             
+                <button
+                  class="btn btn-sm btn-danger btn-decline"
+                  data-userid="{{ s[0] }}"
+                  title="Refuser"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+                {% else %}
+                <button
+                  class="btn btn-sm btn-danger btn-delete"
+                  data-href="{{ url_for('delete_user', userId=s[0]) }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmModal"
+                  title="Supprimer"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center">Aucun vendeur.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-pane fade" id="categories" role="tabpanel">
+        <h4 class="mt-3">Catégories</h4>
+
+        <form
+          class="row g-3 align-items-center mb-3"
+          action="{{ url_for('add_category') }}"
+          method="post"
+        >
+          <div class="col-auto">
+            <input
+              type="text"
+              name="category"
+              class="form-control"
+              placeholder="Nouvelle catégorie"
+              required
+            />
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+        </form>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in categories %}
+            <tr>
+              <td>{{ c[0] }}</td>
+              <td>{{ c[1] }}</td>
+              <td>
+                <button
+                  class="btn btn-sm btn-danger btn-delete"
+                  data-href="{{ url_for('delete_category', categoryId=c[0]) }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmModal"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="text-center">Aucune catégorie.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="confirmModal"
+    tabindex="-1"
+    aria-labelledby="confirmModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalLabel">Confirmation</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fermer"
+          ></button>
+        </div>
+        <div class="modal-body">Êtes-vous sûr de vouloir supprimer cet élément ?</div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Annuler
+          </button>
+          <a href="#" class="btn btn-danger" id="confirmDeleteBtn">Supprimer</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="docsModal"
+    tabindex="-1"
+    aria-labelledby="docsModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="docsModalLabel">Documents du vendeur</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fermer"
+          ></button>
+        </div>
+        <div class="modal-body d-flex justify-content-around text-center">
+          <div>
+            <h6>CIN</h6>
+            <img
+              src=""
+              id="docCIN"
+              alt="CIN"
+              class="img-thumbnail"
+              style="max-height: 150px"
+            />
+          </div>
+          <div>
+            <h6>Licence Vendeur</h6>
+            <img
+              src=""
+              id="docLicence"
+              alt="Licence Vendeur"
+              class="img-thumbnail"
+              style="max-height: 150px"
+            />
+          </div>
+          <div>
+            <h6>Photo</h6>
+            <img
+              src=""
+              id="docPhoto"
+              alt="Photo"
+              class="img-thumbnail"
+              style="max-height: 150px"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="acceptVendorBtn">
+            <i class="fas fa-check"></i> Accepter
+          </button>
+          <button type="button" class="btn btn-danger" id="declineVendorBtn">
+            <i class="fas fa-times"></i> Refuser
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const href = btn.getAttribute('data-href');
+        confirmDeleteBtn.href = href;
+      });
+    });
+
+    const docsModal = document.getElementById('docsModal');
+    let currentVendorId = null;
+
+    docsModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const cin = button.getAttribute('data-cin');
+      const licence = button.getAttribute('data-licence');
+      const photo = button.getAttribute('data-photo');
+      currentVendorId = button.closest('tr').querySelector('.btn-accept, .btn-decline')?.getAttribute('data-userid');
+
+      document.getElementById('docCIN').src = cin;
+      document.getElementById('docLicence').src = licence;
+      document.getElementById('docPhoto').src = photo;
+    });
+
+    const acceptBtn = document.getElementById('acceptVendorBtn');
+    const declineBtn = document.getElementById('declineVendorBtn');
+
+    acceptBtn.addEventListener('click', () => {
+      if (!currentVendorId) return alert('Erreur : aucun vendeur sélectionné');
+      fetch(`/accept_vendor/${currentVendorId}`, { method: 'POST' })
+        .then(res => {
+          if (res.ok) {
+            alert('Vendeur accepté');
+            location.reload();
+          } else {
+            alert('Erreur lors de l\'acceptation');
+          }
+        });
+    });
+
+    declineBtn.addEventListener('click', () => {
+      if (!currentVendorId) return alert('Erreur : aucun vendeur sélectionné');
+      if (!confirm('Voulez-vous vraiment refuser ce vendeur ?')) return;
+      fetch(`/delete_user/${currentVendorId}`, { method: 'POST' })
+        .then(res => {
+          if (res.ok) {
+            alert('Vendeur refusé et supprimé');
+            location.reload();
+          } else {
+            alert('Erreur lors de la suppression');
+          }
+        });
+    });
+
+    document.querySelectorAll('.btn-accept').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const userId = btn.getAttribute('data-userid');
+        if (!userId) return;
+        fetch(`/accept_vendor/${userId}`, { method: 'POST' })
+          .then(res => {
+            if (res.ok) {
+              alert('Vendeur accepté');
+              location.reload();
+            } else {
+              alert('Erreur lors de l\'acceptation');
+            }
+          });
+      });
+    });
+    document.querySelectorAll('.btn-decline').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const userId = btn.getAttribute('data-userid');
+        if (!userId) return;
+        if (!confirm('Voulez-vous vraiment refuser ce vendeur ?')) return;
+        fetch(`/delete_user/${userId}`, { method: 'POST' })
+          .then(res => {
+            if (res.ok) {
+              alert('Vendeur refusé et supprimé');
+              location.reload();
+            } else {
+              alert('Erreur lors de la suppression');
+            }
+          });
+      });
+    });
+  </script>
+</body>
+</html>

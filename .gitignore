@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.vscode/
+.qodo/
+database.db
+token.txt
+.DS_Store
+Thumbs.db
+node_modules/
