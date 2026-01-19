@@ -7,3 +7,21 @@ token.txt
 .DS_Store
 Thumbs.db
 node_modules/
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Product Adder / Utility scripts
+auto_add_products.py
+simple_product_adder.py
+run_product_adder.bat
+PRODUCT_ADDER_README.md
+requirements_products.txt
+dashboard-products
+fix_image_paths.py
+
+# Logs and outputs
+push_output.txt
+*.log

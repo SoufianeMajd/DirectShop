@@ -1,3 +1,0 @@
-# Requirements for automatic product addition scripts
-requests>=2.28.0
-urllib3>=1.26.0

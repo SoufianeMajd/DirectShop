@@ -1,7 +1,0 @@
-remote: error: Trace: 026e8c74208f3cb9b5e484cdff0e1789f04a091b0525bc8be60fd7257fc8a610        
-remote: error: See https://gh.io/lfs for more information.        
-remote: error: File Plus/admin-dashboard/node_modules/.cache/default-development/0.pack is 125.60 MB; this exceeds GitHub's file size limit of 100.00 MB        
-remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
-To https://github.com/SoufianeMajd/DirectShop.git
- ! [remote rejected]   master -> master (pre-receive hook declined)
-error: failed to push some refs to 'https://github.com/SoufianeMajd/DirectShop.git'
