@@ -2,6 +2,8 @@
 
 DirectShop is an e-commerce platform that connects buyers and sellers. It features product management, shopping cart functionality, order processing, and user reviews.
 
+![DirectShop Screenshot](static/images/screenshot.png)
+
 ## Class Diagram
 
 ```mermaid
